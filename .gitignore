@@ -47,6 +47,7 @@ Temporary Items
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries
+build
 
 # CMake
 cmake-build-debug/
