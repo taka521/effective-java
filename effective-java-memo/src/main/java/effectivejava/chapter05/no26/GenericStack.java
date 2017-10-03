@@ -1,6 +1,7 @@
 package effectivejava.chapter05.no26;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EmptyStackException;
 
 /**
@@ -25,12 +26,32 @@ public class GenericStack<E> {
         elements[size++] = e;
     }
 
+    //    ワイルドカードを使用しない pushAll メソッド => 柔軟性に欠ける
+    //    public void pushAll(Iterable<E> src) {
+    //        for (E e : src) push(e);
+    //    }
+
+    // 境界ワイルドカードを使用した pushAll 。
+    public void pushAll(Iterable<? extends E> src) {
+        for (E e : src) push(e);
+    }
+
     public E pop() {
         if (this.size == 0) throw new EmptyStackException();
 
         E result = (E) elements[--size];
         elements[size] = null;  // 廃れた参照を取り除く
         return result;
+    }
+
+    // ワイルドカードを使用しない popAll メソッド
+    //    public void popAll(Collection<E> dst) {
+    //        while (!isEmpty()) dst.add(pop());
+    //    }
+
+    // 境界ワイルドカードを使用した popAll メソッド
+    public void popAll(Collection<? super E> dst) {
+        while (!isEmpty()) dst.add(pop());
     }
 
     public boolean isEmpty() {
