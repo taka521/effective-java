@@ -162,4 +162,44 @@ Integer
 ```
 
 
-## Get&Put原則
+## Get & Put原則
+
+上限境界ワイルドカード（`<? extends T>`）と下限境界ワイルドカード（`<? super T>`）の
+どちらを使用すればよいかの指針が **Get & Put原則**。
+
+別名、**PECS（Producer-extends and Consumer-super）** 。
+
+パラメータ化された型が「プロデューサー（生産者）」であれば上限境界ワイルドカード、
+「コンシューマ（消費者）」であれば下限境界ワイルドカードを使用する。
+
+プロデューサーとは、値を生産する引数のこと。  
+例えば `pushAll` メソッドは、引数の `src` を使用して `Stack` が保持する `E` 型の値を生成する。  
+（`src` から値を取得して、スタックへ格納している）
+
+```java
+public void pushAll(Iterable<? extends E> src) {
+    for (E e : src) push(e);  // Stack へ値を生成している => プロデューサー
+}
+```
+
+コンシューマとは、値を消費する引数のこと。  
+`popAll` メソッドでは `Stack` が保持する `E` の値を、引数 `dst` で消費している。  
+（スタックから値を取得して、`dst` へ格納している）
+
+```java
+public void popAll(Collection<? super E> dst) {
+    while (!isEmpty()) dst.add(pop());  // Stack から値を消費している => コンシューマ
+}
+```
+
+
+## 注意する点
+
+境界ワイルドカードを使用する場合、気をつける点がある。
+
+* 戻り値としてワイルドカードを使用しないこと。
+  * クライアント側のコードでワイルドカード型を使用することを強制することになるため。
+* 型パラメータ `T` が `<T extends Comparable<T>>` である場合、`<T extends Compareble<? super T>>` と宣言すること。
+  * `Comparable<T>` は `T` を消費して比較を行うので、コンシューマ。
+  * よって、Get&Put原則に乗っ取ると `Compareble<T>` は `Comparable<? super T>` となる。
+  * 例えば、リストの最大値を取得するメソッドは `public <T extends Compareble<? super T>> T max(List<? extends T> list)`
